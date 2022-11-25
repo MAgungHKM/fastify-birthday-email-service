@@ -3,6 +3,7 @@ import AutoLoad, { AutoloadPluginOptions } from "@fastify/autoload";
 import { FastifyPluginAsync } from "fastify";
 import FastifySwagger from "@fastify/swagger";
 import FastifySwaggerUI from "@fastify/swagger-ui";
+import Bootstrapper from "./plugins/boot";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -19,6 +20,8 @@ const app: FastifyPluginAsync<AppOptions> = async (
   opts
 ): Promise<void> => {
   // Place here your custom code!
+  await fastify.register(Bootstrapper);
+
   await fastify.register(FastifySwagger);
 
   await fastify.register(FastifySwaggerUI, {
@@ -48,6 +51,7 @@ const app: FastifyPluginAsync<AppOptions> = async (
   void fastify.register(AutoLoad, {
     dir: join(__dirname, "plugins"),
     options: opts,
+    ignorePattern: /boot(\.ts|\.js|\.cjs|\.mjs)/g,
   });
 
   // This loads all plugins defined in routes

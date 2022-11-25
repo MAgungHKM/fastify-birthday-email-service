@@ -2,7 +2,7 @@ import fp from "fastify-plugin";
 import { DateTime, HourNumbers } from "luxon";
 import { zones } from "tzdata";
 
-const luxonValidTimeZonesArr = [
+export const luxonValidTimeZonesArr = [
   ...new Set<string>(
     Object.keys(zones).filter(
       (tz) => tz.includes("/") && DateTime.local().setZone(tz).isValid
@@ -10,10 +10,13 @@ const luxonValidTimeZonesArr = [
   ),
 ].sort((a, b) => (a < b ? -1 : 1));
 
-const luxonValidTimeZones = luxonValidTimeZonesArr.reduce((obj, zone) => {
-  obj[zone] = true;
-  return obj;
-}, {} as Record<string, boolean>);
+export const luxonValidTimeZones = luxonValidTimeZonesArr.reduce(
+  (obj, zone) => {
+    obj[zone] = true;
+    return obj;
+  },
+  {} as Record<string, boolean>
+);
 
 export interface ZonesPluginOptions {
   // Specify Zones plugin options here
@@ -33,7 +36,6 @@ export default fp<ZonesPluginOptions>(async (fastify, opts) => {
         const zoneHour = date.setZone(timeZone).hour;
 
         if (zoneHour === hour) {
-          console.log(timeZone, zoneHour, hour);
           validTimeZones[timeZone] = true;
         }
       }
@@ -47,6 +49,9 @@ export default fp<ZonesPluginOptions>(async (fastify, opts) => {
 declare module "fastify" {
   export interface FastifyInstance {
     getAllValidTimeZones(): Record<string, boolean>;
-    getAllTimeZonesByHour(hour: HourNumbers): Record<string, boolean>;
+    getAllTimeZonesByHour(
+      hour: HourNumbers,
+      date?: DateTime
+    ): Record<string, boolean>;
   }
 }

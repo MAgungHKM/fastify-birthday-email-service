@@ -94,4 +94,31 @@ test("in memory db working as intended", async (t) => {
     t.equal(deletedUser, undefined);
     t.equal(error, "Not found");
   });
+
+  t.test("clear data and check if reset", async (t) => {
+    const user2: User = {
+      firstName: "Doe",
+      lastName: "John",
+      birthday: now,
+      location: "Australia/Melbourne",
+    };
+    const prevData = { ...user2 };
+    db.users().create(user2);
+
+    t.same(user2, {
+      _id: 2,
+      ...prevData,
+    });
+
+    db.users().clearData();
+
+    db.users().create(user2);
+
+    t.same(user2, {
+      _id: 1,
+      ...prevData,
+    });
+  });
+
+  t.teardown(() => db.users().clearData());
 });

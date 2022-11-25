@@ -1,1 +1,3 @@
-export * from "./UserRepository";
+import { InMemoryUserRepository } from "./UserRepository";
+
+export { InMemoryUserRepository };

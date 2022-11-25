@@ -1,6 +1,5 @@
-import { ERROR_NOT_FOUND } from "./db";
+import { ERROR_NOT_FOUND, InMemoryDB } from "./db";
 import { IUserRepository, User, UserNotFound } from "../../core/users";
-import { InMemoryDB } from "./db";
 
 export class InMemoryUserRepository implements IUserRepository {
   db = InMemoryDB.getInstance();

@@ -53,5 +53,9 @@ export class InMemoryDB {
 
       return { user };
     },
+    clearData: () => {
+      this.user.map = {};
+      this.user.lastInsertedId = 1;
+    },
   });
 }

@@ -14,11 +14,12 @@ test("in memory db working as intended", async (t) => {
   };
 
   t.test("create a user", async (t) => {
+    const prevData = { ...user1 };
     db.users().create(user1);
 
     t.same(user1, {
       _id: 1,
-      ...user1,
+      ...prevData,
     });
   });
 
@@ -51,7 +52,7 @@ test("in memory db working as intended", async (t) => {
   t.test("get user but with invalid id", async (t) => {
     const { user: checkUser1, error } = db.users().getById(-1);
     t.equal(checkUser1, undefined);
-    t.same(error, "Not found");
+    t.equal(error, "Not found");
   });
 
   const newUser1: User = {
@@ -76,7 +77,7 @@ test("in memory db working as intended", async (t) => {
       .users()
       .update({ ...newUser1, _id: -1 });
     t.equal(updatedUser1, undefined);
-    t.same(error, "Not found");
+    t.equal(error, "Not found");
   });
 
   t.test("delete user by id", async (t) => {
@@ -88,9 +89,9 @@ test("in memory db working as intended", async (t) => {
     t.equal(error, undefined);
   });
 
-  t.test("get user but with invalid id", async (t) => {
+  t.test("delete user but with invalid id", async (t) => {
     const { user: deletedUser, error } = db.users().delete(-1);
     t.equal(deletedUser, undefined);
-    t.same(error, "Not found");
+    t.equal(error, "Not found");
   });
 });

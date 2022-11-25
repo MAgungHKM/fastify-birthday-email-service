@@ -26,17 +26,8 @@ const app: FastifyPluginAsync<AppOptions> = async (
     uiConfig: {
       deepLinking: false,
     },
-    uiHooks: {
-      onRequest: function (request, reply, next) {
-        next();
-      },
-      preHandler: function (request, reply, next) {
-        next();
-      },
-    },
     staticCSP: true,
-    transformStaticCSP: (header) => header,
-    transformSpecification: (swaggerObject, req, reply) => {
+    transformSpecification: (swaggerObject) => {
       return {
         ...swaggerObject,
         info: {

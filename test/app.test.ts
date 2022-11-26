@@ -1,14 +1,18 @@
 import { test } from "tap";
-import { build } from "./helper";
-// import FastifySwagger from "@fastify/swagger";
-// import FastifySwaggerUI from "@fastify/swagger-ui";
+import Fastify from "fastify";
+import fp from "fastify-plugin";
+import MockedEmailer from "./plugins/emailer.mock";
 import * as dotenv from "dotenv";
 dotenv.config();
 
 test("swagger & swagger-ui is loaded correctly", async (t) => {
-  const app = await build(t);
+  const AppMock = t.mock("../src/app", {
+    "../src/plugins/emailer": MockedEmailer,
+  });
+  const mockedApp = Fastify();
+  mockedApp.register(fp(AppMock), {});
 
-  const res = await app.inject({
+  const res = await mockedApp.inject({
     url: "/docs/json",
   });
 
@@ -16,4 +20,6 @@ test("swagger & swagger-ui is loaded correctly", async (t) => {
     title: process.env.FASTIFY_NAME,
     version: process.env.npm_package_version,
   });
+
+  t.teardown(async () => await mockedApp.close());
 });

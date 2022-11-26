@@ -8,6 +8,9 @@ class MockedInMemoryUserRepository implements IUserRepository {
   getAll = () => {
     return { error: { message: "Unknown error" } };
   };
+  getByLocations = (_locations: string[]) => {
+    return { error: { message: "Unknown error" } };
+  };
   getById = (_userId: number) => {
     return { error: { message: "Unknown error" } };
   };

@@ -6,6 +6,7 @@ import { UserDTO } from "../../src/routes/user/dto";
 import { dateAsYYYYMMDD } from "../../src/utils";
 import { build } from "../helper";
 import MockedBootstrapper from "../plugins/boot.mock";
+import MockedEmailer from "../plugins/emailer.mock";
 
 test("user route work as intended", async (t) => {
   InMemoryDB.getInstance().users().clearData();
@@ -161,6 +162,7 @@ test("user route work as intended", async (t) => {
 
   const AppMock = t.mock("../../src/app", {
     "../../src/plugins/boot": MockedBootstrapper,
+    "../../src/plugins/emailer": MockedEmailer,
   });
   const mockedApp = Fastify();
   mockedApp.register(fp(AppMock), {});

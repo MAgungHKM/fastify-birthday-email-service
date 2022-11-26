@@ -1,7 +1,9 @@
 import { test } from "tap";
-import { build } from "../helper";
 import { DateTime } from "luxon";
 import { zones } from "tzdata";
+import Fastify from "fastify";
+import fp from "fastify-plugin";
+import MockedEmailer from "../plugins/emailer.mock";
 
 test("location is loaded and verified", async (t) => {
   const luxonValidTimeZonesArr = [
@@ -12,13 +14,20 @@ test("location is loaded and verified", async (t) => {
     ),
   ].sort((a, b) => (a < b ? -1 : 1));
 
-  const app = await build(t);
+  const AppMock = t.mock("../../src/app", {
+    "../../src/plugins/emailer": MockedEmailer,
+  });
+  const mockedApp = Fastify();
+  mockedApp.register(fp(AppMock), {});
 
-  const res = await app.inject({
+  const res = await mockedApp.inject({
     url: "/location",
   });
+
   t.same(JSON.parse(res.payload), {
     message: "Success",
     data: luxonValidTimeZonesArr,
   });
+
+  t.teardown(async () => await mockedApp.close());
 });

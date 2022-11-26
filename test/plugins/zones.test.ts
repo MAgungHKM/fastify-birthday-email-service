@@ -18,14 +18,14 @@ test("zones works standalone", async (t) => {
     return obj;
   }, {} as Record<string, boolean>);
 
-  const timeZonessByHour9: Record<string, boolean> = {};
+  const timeZonessByHour9: Record<string, string> = {};
   const date = DateTime.local();
 
   for (const timeZone of luxonValidTimeZonesArr) {
     const zoneHour = date.setZone(timeZone).hour;
 
     if (zoneHour === 9) {
-      timeZonessByHour9[timeZone] = true;
+      timeZonessByHour9[timeZone] = date.toFormat("yyyy-MM-dd");
     }
   }
 

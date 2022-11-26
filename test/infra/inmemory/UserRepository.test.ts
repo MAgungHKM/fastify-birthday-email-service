@@ -1,5 +1,5 @@
 import { test } from "tap";
-import { IUserRepository, User, UserNotFound } from "../../../src/core/users";
+import { IUserRepository, User, UserIDNotFound } from "../../../src/core/users";
 import { InMemoryUserRepository } from "../../../src/infra/inmemory";
 import { InMemoryDB } from "../../../src/infra/inmemory/db";
 
@@ -30,6 +30,8 @@ class MockedInMemoryDB {
 }
 
 test("in memory db working as intended", async (t) => {
+  InMemoryDB.getInstance().users().clearData();
+
   const userRepository: IUserRepository = new InMemoryUserRepository();
   const { InMemoryUserRepository: InMemoryUserRepositoryMock } = t.mock(
     "../../../src/infra/inmemory/UserRepository",
@@ -46,7 +48,7 @@ test("in memory db working as intended", async (t) => {
   const user1: User = {
     firstName: "John",
     lastName: "Doe",
-    birthday: now,
+    birthdate: now,
     location: "Australia/Melbourne",
   };
 
@@ -85,7 +87,7 @@ test("in memory db working as intended", async (t) => {
   t.test("get user but with invalid id", async (t) => {
     const { user: checkUser1, error } = userRepository.getById(-1);
     t.equal(checkUser1, undefined);
-    t.same(error, new UserNotFound(-1));
+    t.same(error, new UserIDNotFound(-1));
   });
 
   t.test("get user by id but return unknown error", async (t) => {
@@ -98,7 +100,7 @@ test("in memory db working as intended", async (t) => {
     _id: 1,
     firstName: "Jeane",
     lastName: "Doe",
-    birthday: now,
+    birthdate: now,
     location: "Australia/Melbourne",
   };
 
@@ -117,7 +119,7 @@ test("in memory db working as intended", async (t) => {
       _id: -1,
     });
     t.equal(updatedUser1, undefined);
-    t.same(error, new UserNotFound(-1));
+    t.same(error, new UserIDNotFound(-1));
   });
 
   t.test("update a user by id but return unknown error", async (t) => {
@@ -138,13 +140,60 @@ test("in memory db working as intended", async (t) => {
   t.test("delete user but with invalid id", async (t) => {
     const { user: deletedUser, error } = userRepository.delete(-1);
     t.equal(deletedUser, undefined);
-    t.same(error, new UserNotFound(-1));
+    t.same(error, new UserIDNotFound(-1));
   });
 
   t.test("delete a user by id but return unknown error", async (t) => {
     const { user: checkUser1, error } = mockedUserRepository.delete(-1);
     t.equal(checkUser1, undefined);
     t.same(error, { message: "Unknown error" });
+  });
+
+  const newUser2: User = {
+    firstName: "Jeane",
+    lastName: "Doe",
+    birthdate: now,
+    location: "Australia/Melbourne",
+  };
+
+  const newUser3: User = {
+    firstName: "Doe",
+    lastName: "Jeane",
+    birthdate: now,
+    location: "Asia/Jakarta",
+  };
+
+  const newUser4: User = {
+    firstName: "Johnny",
+    lastName: "Doe",
+    birthdate: now,
+    location: "Australia/Melbourne",
+  };
+
+  t.test("get user by location", async (t) => {
+    userRepository.create(newUser2);
+    userRepository.create(newUser3);
+    userRepository.create(newUser4);
+
+    const { users, error } = userRepository.getByLocations([
+      "Australia/Melbourne",
+    ]);
+    t.equal(Object.keys(users!!).length, 2);
+    t.same(users, [
+      {
+        ...newUser2,
+        _id: 2,
+      },
+      {
+        ...newUser4,
+        _id: 4,
+      },
+    ]);
+    t.equal(error, undefined);
+
+    const { users: users2 } = userRepository.getByLocations(["Europe/Paris"]);
+    t.equal(Object.keys(users2!!).length, 0);
+    t.same(users2, []);
   });
 
   t.teardown(() => InMemoryDB.getInstance().users().clearData());

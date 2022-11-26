@@ -4,12 +4,14 @@ import { InMemoryDB } from "../../../src/infra/inmemory/db";
 
 test("in memory db working as intended", async (t) => {
   const db = InMemoryDB.getInstance();
+  db.users().clearData();
+
   const now = new Date();
 
   const user1: User = {
     firstName: "John",
     lastName: "Doe",
-    birthday: now,
+    birthdate: now,
     location: "Australia/Melbourne",
   };
 
@@ -59,7 +61,7 @@ test("in memory db working as intended", async (t) => {
     _id: 1,
     firstName: "Jeane",
     lastName: "Doe",
-    birthday: now,
+    birthdate: now,
     location: "Australia/Melbourne",
   };
 
@@ -99,7 +101,7 @@ test("in memory db working as intended", async (t) => {
     const user2: User = {
       firstName: "Doe",
       lastName: "John",
-      birthday: now,
+      birthdate: now,
       location: "Australia/Melbourne",
     };
     const prevData = { ...user2 };

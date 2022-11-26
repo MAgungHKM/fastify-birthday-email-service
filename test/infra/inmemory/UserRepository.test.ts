@@ -1,7 +1,10 @@
+import Fastify from "fastify";
+import { DateTime } from "luxon";
 import { test } from "tap";
 import { IUserRepository, User, UserIDNotFound } from "../../../src/core/users";
 import { InMemoryUserRepository } from "../../../src/infra/inmemory";
 import { InMemoryDB } from "../../../src/infra/inmemory/db";
+import Zones from "../../../src/plugins/zones";
 
 class MockedInMemoryDB {
   private static instance: MockedInMemoryDB;
@@ -30,9 +33,16 @@ class MockedInMemoryDB {
 }
 
 test("in memory db working as intended", async (t) => {
+  const fastify = Fastify();
+  await fastify.register(Zones);
+
   InMemoryDB.getInstance().users().clearData();
 
-  const userRepository: IUserRepository = new InMemoryUserRepository();
+  await fastify.ready();
+
+  const userRepository: IUserRepository = new InMemoryUserRepository(
+    fastify.getAllTimeZonesByHour
+  );
   const { InMemoryUserRepository: InMemoryUserRepositoryMock } = t.mock(
     "../../../src/infra/inmemory/UserRepository",
     {
@@ -175,9 +185,9 @@ test("in memory db working as intended", async (t) => {
     userRepository.create(newUser3);
     userRepository.create(newUser4);
 
-    const { users, error } = userRepository.getByLocations([
-      "Australia/Melbourne",
-    ]);
+    const date = DateTime.now().setZone("Australia/Melbourne");
+
+    const { users, error } = userRepository.getByLocalTime(date.hour);
     t.equal(Object.keys(users!!).length, 2);
     t.same(users, [
       {
@@ -191,10 +201,15 @@ test("in memory db working as intended", async (t) => {
     ]);
     t.equal(error, undefined);
 
-    const { users: users2 } = userRepository.getByLocations(["Europe/Paris"]);
+    const { users: users2 } = userRepository.getByLocalTime(
+      date.setZone("Europe/Amsterdam").hour
+    );
     t.equal(Object.keys(users2!!).length, 0);
     t.same(users2, []);
   });
 
-  t.teardown(() => InMemoryDB.getInstance().users().clearData());
+  t.teardown(async () => {
+    InMemoryDB.getInstance().users().clearData();
+    await fastify.close();
+  });
 });

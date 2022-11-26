@@ -7,7 +7,11 @@ import {
   EmailQueueService,
   EmptyEmailQueueError,
 } from "../../../../src/core/emails/queues";
-import { User, UserNotFound } from "../../../../src/core/users";
+import {
+  IUserRepository,
+  User,
+  UserNotFound,
+} from "../../../../src/core/users";
 import { InMemoryUserRepository } from "../../../../src/infra/inmemory";
 import { InMemoryDB } from "../../../../src/infra/inmemory/db";
 import { dateAsYYYYMMDD } from "../../../../src/utils";
@@ -87,11 +91,10 @@ test("check emailQueueService", async (t) => {
 
   InMemoryDB.getInstance().users().clearData();
 
-  const userRepository = new InMemoryUserRepository();
-  const emailQueueService = new EmailQueueService(
-    userRepository,
+  const userRepository = new InMemoryUserRepository(
     mockedGetAllTimeZonesByHour
   );
+  const emailQueueService = new EmailQueueService(userRepository);
 
   const now = new Date();
 
@@ -124,15 +127,29 @@ test("check emailQueueService", async (t) => {
   t.test(
     "if able to catch error when populating onGoingQueue if no user exist",
     async (t) => {
-      const mockedGetAllTimeZonesByHour = (
-        _hour: HourNumbers,
-        _date: DateTime | undefined
-      ) => ({ "Asia/Jakarta": dateAsYYYYMMDD(new Date()) });
+      class MockedInMemoryUserRepository implements IUserRepository {
+        create = (_user: User) => {
+          return { message: "Unknown error" };
+        };
+        getAll = () => {
+          return { error: { message: "Unknown error" } };
+        };
+        getByLocalTime = (_hour: HourNumbers) => {
+          return { error: { message: "Unknown error" } };
+        };
+        getById = (_userId: number) => {
+          return { error: { message: "Unknown error" } };
+        };
+        update = (_user: User) => {
+          return { error: { message: "Unknown error" } };
+        };
+        delete = (_userId: number) => {
+          return { error: { message: "Unknown error" } };
+        };
+      }
 
-      const emailQueueService = new EmailQueueService(
-        userRepository,
-        mockedGetAllTimeZonesByHour
-      );
+      const userRepository = new MockedInMemoryUserRepository();
+      const emailQueueService = new EmailQueueService(userRepository);
       const error = emailQueueService.populateOnGoingQueue(emailQueue);
       t.same(error, new UserNotFound());
       t.equal(emailQueue.onGoing.length, 0);

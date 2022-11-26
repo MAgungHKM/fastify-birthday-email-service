@@ -1,4 +1,5 @@
 import fp from "fastify-plugin";
+import { HourNumbers } from "luxon";
 import { IUserRepository, User } from "../../src/core/users";
 
 class MockedInMemoryUserRepository implements IUserRepository {
@@ -8,7 +9,7 @@ class MockedInMemoryUserRepository implements IUserRepository {
   getAll = () => {
     return { error: { message: "Unknown error" } };
   };
-  getByLocations = (_locations: string[]) => {
+  getByLocalTime = (_hour: HourNumbers) => {
     return { error: { message: "Unknown error" } };
   };
   getById = (_userId: number) => {

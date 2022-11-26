@@ -41,7 +41,9 @@ export interface BootPluginOptions {
 // to export the decorators to the outer scope
 export default fp<BootPluginOptions>(
   async (fastify, opts) => {
-    const userRepository = new InMemoryUserRepository();
+    const userRepository = new InMemoryUserRepository(
+      fastify.getAllTimeZonesByHour
+    );
     const emailQueueService = new MockedEmailQueueService(userRepository);
 
     fastify.decorate("userRepository", userRepository);

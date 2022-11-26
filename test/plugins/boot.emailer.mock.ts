@@ -11,8 +11,8 @@ class MockedEmailQueueService {
     this.userRepository = userRepository;
   }
 
-  populateOnGoingQueue = (emailQueue: EmailQueue) => {
-    const { users, error } = this.userRepository.getAll();
+  populateOnGoingQueue = async (emailQueue: EmailQueue) => {
+    const { users, error } = await this.userRepository.getAll();
 
     if (error || !users || users.length === 0) {
       return new UserNotFound();

@@ -129,28 +129,28 @@ test("check emailQueueService", async (t) => {
     async (t) => {
       class MockedInMemoryUserRepository implements IUserRepository {
         create = (_user: User) => {
-          return { message: "Unknown error" };
+          return Promise.resolve({ message: "Unknown error" });
         };
         getAll = () => {
-          return { error: { message: "Unknown error" } };
+          return Promise.resolve({ error: { message: "Unknown error" } });
         };
         getByLocalTime = (_hour: HourNumbers) => {
-          return { error: { message: "Unknown error" } };
+          return Promise.resolve({ error: { message: "Unknown error" } });
         };
         getById = (_userId: number) => {
-          return { error: { message: "Unknown error" } };
+          return Promise.resolve({ error: { message: "Unknown error" } });
         };
         update = (_user: User) => {
-          return { error: { message: "Unknown error" } };
+          return Promise.resolve({ error: { message: "Unknown error" } });
         };
         delete = (_userId: number) => {
-          return { error: { message: "Unknown error" } };
+          return Promise.resolve({ error: { message: "Unknown error" } });
         };
       }
 
       const userRepository = new MockedInMemoryUserRepository();
       const emailQueueService = new EmailQueueService(userRepository);
-      const error = emailQueueService.populateOnGoingQueue(emailQueue);
+      const error = await emailQueueService.populateOnGoingQueue(emailQueue);
       t.same(error, new UserNotFound());
       t.equal(emailQueue.onGoing.length, 0);
     }
@@ -162,7 +162,7 @@ test("check emailQueueService", async (t) => {
 
   t.test("if able to populate onGoingQueue as intended", async (t) => {
     t.equal(emailQueue.onGoing.length, 0);
-    const error = emailQueueService.populateOnGoingQueue(emailQueue);
+    const error = await emailQueueService.populateOnGoingQueue(emailQueue);
     t.equal(emailQueue.onGoing.length, 2);
     t.equal(error, undefined);
     t.hasStrict(emailQueue.onGoing, [

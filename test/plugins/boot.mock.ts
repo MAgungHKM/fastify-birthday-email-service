@@ -4,22 +4,22 @@ import { IUserRepository, User } from "../../src/core/users";
 
 class MockedInMemoryUserRepository implements IUserRepository {
   create = (_user: User) => {
-    return { message: "Unknown error" };
+    return Promise.resolve({ message: "Unknown error" });
   };
   getAll = () => {
-    return { error: { message: "Unknown error" } };
+    return Promise.resolve({ error: { message: "Unknown error" } });
   };
   getByLocalTime = (_hour: HourNumbers) => {
-    return { error: { message: "Unknown error" } };
+    return Promise.resolve({ error: { message: "Unknown error" } });
   };
   getById = (_userId: number) => {
-    return { error: { message: "Unknown error" } };
+    return Promise.resolve({ error: { message: "Unknown error" } });
   };
   update = (_user: User) => {
-    return { error: { message: "Unknown error" } };
+    return Promise.resolve({ error: { message: "Unknown error" } });
   };
   delete = (_userId: number) => {
-    return { error: { message: "Unknown error" } };
+    return Promise.resolve({ error: { message: "Unknown error" } });
   };
 }
 

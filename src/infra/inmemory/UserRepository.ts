@@ -22,57 +22,57 @@ export class InMemoryUserRepository implements IUserRepository {
   getAll = () => {
     const users = Object.values(this.db.users().getAll());
 
-    return { users };
+    return Promise.resolve(Promise.resolve({ users }));
   };
 
   getById = (userId: number) => {
     const { user, error } = this.db.users().getById(userId);
     if (error) {
       if (error === ERROR_NOT_FOUND)
-        return { error: new UserIDNotFound(userId) };
-      else return { error: { message: error } };
+        return Promise.resolve({ error: new UserIDNotFound(userId) });
+      else return Promise.resolve({ error: { message: error } });
     }
 
-    return { user };
+    return Promise.resolve({ user });
   };
 
   getByLocalTime = (hour: HourNumbers) => {
     const zones = this.getAllTimeZonesByHour(hour);
-    return {
+    return Promise.resolve({
       users: Object.values(this.db.users().getAll()).filter(
         (user) =>
           Object.keys(zones).includes(user.location) &&
           dateAsYYYYMMDD(user.birthdate).slice(5) ===
             zones[user.location].slice(5)
       ),
-    };
+    });
   };
 
   create = (user: User) => {
     this.db.users().create(user);
 
-    return undefined;
+    return Promise.resolve(undefined);
   };
 
   update = (user: User) => {
     const { user: updatedUser, error } = this.db.users().update(user);
     if (error) {
       if (error === ERROR_NOT_FOUND && user._id)
-        return { error: new UserIDNotFound(user._id) };
-      else return { error: { message: error } };
+        return Promise.resolve({ error: new UserIDNotFound(user._id) });
+      else return Promise.resolve({ error: { message: error } });
     }
 
-    return { user: updatedUser };
+    return Promise.resolve({ user: updatedUser });
   };
 
   delete = (userId: number) => {
     const { user, error } = this.db.users().delete(userId);
     if (error) {
       if (error === ERROR_NOT_FOUND)
-        return { error: new UserIDNotFound(userId) };
-      else return { error: { message: error } };
+        return Promise.resolve({ error: new UserIDNotFound(userId) });
+      else return Promise.resolve({ error: { message: error } });
     }
 
-    return { user };
+    return Promise.resolve({ user });
   };
 }

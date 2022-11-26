@@ -17,7 +17,7 @@ const user: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
       },
     },
     async function (request, reply) {
-      const { users, error } = fastify.userRepository.getAll();
+      const { users, error } = await fastify.userRepository.getAll();
       if (error || !users) {
         reply.code(500).send(error);
         return;
@@ -49,7 +49,7 @@ const user: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     },
     async function (request, reply) {
       const data = request.params as UserIdDTO;
-      const { user, error } = fastify.userRepository.getById(data.id);
+      const { user, error } = await fastify.userRepository.getById(data.id);
       if (error || !user) {
         const statusCode = error instanceof UserIDNotFound ? 404 : 500;
 
@@ -92,7 +92,7 @@ const user: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         location: data.location,
       };
 
-      const error = fastify.userRepository.create(user);
+      const error = await fastify.userRepository.create(user);
       if (error) {
         reply.code(500).send(error);
         return;
@@ -136,7 +136,9 @@ const user: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         location: body.location,
       };
 
-      const { user: updatedUser, error } = fastify.userRepository.update(user);
+      const { user: updatedUser, error } = await fastify.userRepository.update(
+        user
+      );
       if (error || !updatedUser) {
         const statusCode = error instanceof UserIDNotFound ? 404 : 500;
 
@@ -172,7 +174,7 @@ const user: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     },
     async function (request, reply) {
       const data = request.params as UserIdDTO;
-      const { user, error } = fastify.userRepository.delete(data.id);
+      const { user, error } = await fastify.userRepository.delete(data.id);
       if (error || !user) {
         const statusCode = error instanceof UserIDNotFound ? 404 : 500;
 

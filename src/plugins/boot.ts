@@ -3,19 +3,19 @@ import { EmailQueueService } from "../core/emails/queues/service";
 import { IUserRepository } from "../core/users";
 import { InMemoryUserRepository } from "../infra/inmemory";
 
-export interface BootPluginOptions {
-  // Specify Boot plugin options here
+export interface BootstrapperPluginOptions {
+  // Specify Bootstrapper plugin options here
 }
 
 // The use of fastify-plugin is required to be able
 // to export the decorators to the outer scope
-export default fp<BootPluginOptions>(
+export default fp<BootstrapperPluginOptions>(
   async (fastify, opts) => {
-    const userRepository = new InMemoryUserRepository();
-    const emailQueueService = new EmailQueueService(
-      userRepository,
+    const userRepository = new InMemoryUserRepository(
       fastify.getAllTimeZonesByHour
     );
+
+    const emailQueueService = new EmailQueueService(userRepository);
 
     fastify.decorate("userRepository", userRepository);
     fastify.decorate("emailQueueService", emailQueueService);

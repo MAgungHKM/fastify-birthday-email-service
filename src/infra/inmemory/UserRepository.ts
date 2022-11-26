@@ -1,8 +1,23 @@
 import { ERROR_NOT_FOUND, InMemoryDB } from "./db";
 import { IUserRepository, User, UserIDNotFound } from "../../core/users";
+import { DateTime, HourNumbers } from "luxon";
+import { dateAsYYYYMMDD } from "../../utils";
 
 export class InMemoryUserRepository implements IUserRepository {
-  db = InMemoryDB.getInstance();
+  private db = InMemoryDB.getInstance();
+  private getAllTimeZonesByHour: (
+    hour: HourNumbers,
+    date?: DateTime
+  ) => Record<string, string>;
+
+  constructor(
+    getAllTimeZonesByHour: (
+      hour: HourNumbers,
+      date?: DateTime
+    ) => Record<string, string>
+  ) {
+    this.getAllTimeZonesByHour = getAllTimeZonesByHour;
+  }
 
   getAll = () => {
     const users = Object.values(this.db.users().getAll());
@@ -21,10 +36,14 @@ export class InMemoryUserRepository implements IUserRepository {
     return { user };
   };
 
-  getByLocations = (locations: string[]) => {
+  getByLocalTime = (hour: HourNumbers) => {
+    const zones = this.getAllTimeZonesByHour(hour);
     return {
-      users: Object.values(this.db.users().getAll()).filter((user) =>
-        locations.includes(user.location)
+      users: Object.values(this.db.users().getAll()).filter(
+        (user) =>
+          Object.keys(zones).includes(user.location) &&
+          dateAsYYYYMMDD(user.birthdate).slice(5) ===
+            zones[user.location].slice(5)
       ),
     };
   };

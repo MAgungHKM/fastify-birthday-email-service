@@ -1,10 +1,11 @@
+import { HourNumbers } from "luxon";
 import { GenericError } from "../../common";
 import { User } from "./model";
 
 export type IUserRepository = {
   getAll: () => { users?: User[]; error?: GenericError };
   getById: (userId: number) => { user?: User; error?: GenericError };
-  getByLocations: (locations: string[]) => {
+  getByLocalTime: (time: HourNumbers) => {
     users?: User[];
     error?: GenericError;
   };

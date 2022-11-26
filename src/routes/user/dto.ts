@@ -14,8 +14,8 @@ export type UserIdDTO = {
 
 export const userJSONSchema = (locations: Record<string, boolean>) =>
   S.object()
-    .prop("first_name", S.string().minLength(1).required())
-    .prop("last_name", S.string().minLength(1).required())
+    .prop("first_name", S.string().minLength(1).maxLength(50).required())
+    .prop("last_name", S.string().minLength(1).maxLength(50).required())
     .prop(
       "birthday",
       S.raw({
@@ -28,6 +28,7 @@ export const userJSONSchema = (locations: Record<string, boolean>) =>
       S.string()
         .enum(Object.keys(locations))
         .default("Australia/Melbourne")
+        .maxLength(50)
         .required()
     );
 

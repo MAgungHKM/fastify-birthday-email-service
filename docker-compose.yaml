@@ -1,0 +1,43 @@
+version: '3.7'
+services:
+  api:
+    container_name: api
+    image: node:16.13.1-alpine
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    working_dir: /app
+    ports:
+      - '3000:${FASTIFY_PORT:-3000}'
+    init: true
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+    networks:
+      - fastify-net
+
+  postgres:
+    container_name: postgres
+    image: 'postgres:15.1'
+    build:
+      context: .
+      dockerfile: ./db/Dockerfile
+    restart: always
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/db/postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-admin}
+      POSTGRES_DATABASE: ${DB_NAME:-db_user}
+      POSTGRES_PASSWORD: ${DB_PASS:-S3cureP@ssw0rd}
+    networks:
+      - fastify-net
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  fastify-net:

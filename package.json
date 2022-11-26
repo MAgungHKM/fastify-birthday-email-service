@@ -7,8 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "npm run build:ts && tsc -p test/tsconfig.json && tap --ts \"test/**/*.test.ts\"",
-    "test:report": "npm run build:ts && tsc -p test/tsconfig.json && tap --ts --coverage-report=lcov \"test/**/*.test.ts\"",
+    "test": "npm run build:ts && tsc -p test/tsconfig.json && tap --ts --timeout=60 \"test/**/*.test.ts\"",
+    "test:report": "npm run build:ts && tsc -p test/tsconfig.json && tap --ts --timeout=60 --coverage-report=lcov \"test/**/*.test.ts\"",
     "start": "npm run build:ts && fastify start -l info dist/app.js",
     "build:ts": "tsc",
     "watch:ts": "tsc -w",
@@ -20,24 +20,32 @@
   "license": "ISC",
   "dependencies": {
     "@fastify/autoload": "^5.0.0",
+    "@fastify/schedule": "^4.1.0",
     "@fastify/sensible": "^5.0.0",
     "@fastify/swagger": "^8.1.0",
     "@fastify/swagger-ui": "^1.2.0",
+    "axios": "^1.2.0",
+    "axios-retry": "^3.3.1",
     "dotenv": "^16.0.3",
     "fastify": "^4.0.0",
     "fastify-cli": "^5.6.0",
     "fastify-plugin": "^4.0.0",
     "fluent-json-schema": "^4.0.0",
     "luxon": "^3.1.0",
+    "retry": "^0.13.1",
+    "toad-scheduler": "^2.0.0",
     "tzdata": "^1.0.35"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
     "@types/luxon": "^3.1.0",
     "@types/node": "^18.0.0",
+    "@types/retry": "^0.12.2",
     "@types/tap": "^15.0.5",
     "append-transform": "^2.0.0",
     "concurrently": "^7.0.0",
     "fastify-tsconfig": "^1.0.1",
+    "prisma": "^4.6.1",
     "tap": "^16.1.0",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4"

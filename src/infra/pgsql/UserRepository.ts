@@ -2,7 +2,7 @@ import { IUserRepository, User, UserIDNotFound } from "../../core/users";
 import { HourNumbers } from "luxon";
 import type { Prisma, PrismaClient, users as UserModel } from "@prisma/client";
 
-export class UserRepository implements IUserRepository {
+export class PgSQLUserRepository implements IUserRepository {
   private db: PrismaClient;
 
   constructor(db: PrismaClient) {
@@ -70,7 +70,7 @@ export class UserRepository implements IUserRepository {
 
   update = async (user: User) => {
     const id = user._id as number;
-    const checkUser = this.getById(id);
+    const checkUser = await this.db.users.findFirst({ where: { id } });
 
     if (!checkUser) {
       return { error: new UserIDNotFound(id) };
@@ -92,7 +92,7 @@ export class UserRepository implements IUserRepository {
   };
 
   delete = async (id: number) => {
-    const checkUser = this.getById(id);
+    const checkUser = await this.db.users.findFirst({ where: { id } });
 
     if (!checkUser) {
       return { error: new UserIDNotFound(id) };

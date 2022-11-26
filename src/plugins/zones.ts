@@ -24,26 +24,29 @@ export interface ZonesPluginOptions {
 
 // The use of fastify-plugin is required to be able
 // to export the decorators to the outer scope
-export default fp<ZonesPluginOptions>(async (fastify, opts) => {
-  fastify.decorate("getAllValidTimeZones", () => luxonValidTimeZones);
+export default fp<ZonesPluginOptions>(
+  async (fastify, opts) => {
+    fastify.decorate("getAllValidTimeZones", () => luxonValidTimeZones);
 
-  fastify.decorate(
-    "getAllTimeZonesByHour",
-    (hour: HourNumbers, date: DateTime = DateTime.local()) => {
-      const validTimeZones: Record<string, boolean> = {};
+    fastify.decorate(
+      "getAllTimeZonesByHour",
+      (hour: HourNumbers, date: DateTime = DateTime.local()) => {
+        const validTimeZones: Record<string, string> = {};
 
-      for (const timeZone of luxonValidTimeZonesArr) {
-        const zoneHour = date.setZone(timeZone).hour;
+        for (const timeZone of luxonValidTimeZonesArr) {
+          const zoneHour = date.setZone(timeZone).hour;
 
-        if (zoneHour === hour) {
-          validTimeZones[timeZone] = true;
+          if (zoneHour === hour) {
+            validTimeZones[timeZone] = date.toFormat("yyyy-MM-dd");
+          }
         }
-      }
 
-      return validTimeZones;
-    }
-  );
-});
+        return validTimeZones;
+      }
+    );
+  },
+  { name: "zones" }
+);
 
 // When using .decorate you have to specify added properties for Typescript
 declare module "fastify" {
@@ -52,6 +55,6 @@ declare module "fastify" {
     getAllTimeZonesByHour(
       hour: HourNumbers,
       date?: DateTime
-    ): Record<string, boolean>;
+    ): Record<string, string>;
   }
 }

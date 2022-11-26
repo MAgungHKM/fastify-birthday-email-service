@@ -4,6 +4,7 @@ import { FastifyPluginAsync } from "fastify";
 import FastifySwagger from "@fastify/swagger";
 import FastifySwaggerUI from "@fastify/swagger-ui";
 import Bootstrapper from "./plugins/boot";
+import Emailer from "./plugins/emailer";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -20,9 +21,9 @@ const app: FastifyPluginAsync<AppOptions> = async (
   opts
 ): Promise<void> => {
   // Place here your custom code!
-  await fastify.register(Bootstrapper);
-
-  await fastify.register(FastifySwagger);
+  await fastify.register(FastifySwagger, {
+    hideUntagged: true,
+  });
 
   await fastify.register(FastifySwaggerUI, {
     routePrefix: "/docs",
@@ -48,18 +49,20 @@ const app: FastifyPluginAsync<AppOptions> = async (
   // This loads all plugins defined in plugins
   // those should be support plugins that are reused
   // through your application
-  void fastify.register(AutoLoad, {
+  await fastify.register(AutoLoad, {
     dir: join(__dirname, "plugins"),
     options: opts,
-    ignorePattern: /boot(\.ts|\.js|\.cjs|\.mjs)/g,
   });
 
   // This loads all plugins defined in routes
   // define your routes in one of these
-  void fastify.register(AutoLoad, {
+  await fastify.register(AutoLoad, {
     dir: join(__dirname, "routes"),
     options: opts,
   });
+
+  await fastify.register(Bootstrapper);
+  await fastify.register(Emailer);
 };
 
 export default app;

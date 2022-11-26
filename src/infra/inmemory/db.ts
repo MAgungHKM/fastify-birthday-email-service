@@ -1,11 +1,38 @@
 import { User } from "../../core/users";
+import { faker } from "@faker-js/faker";
+import { DateTime } from "luxon";
+import { zones } from "tzdata";
+
+const luxonValidTimeZonesArr = [
+  ...new Set<string>(
+    Object.keys(zones).filter(
+      (tz) => tz.includes("/") && DateTime.local().setZone(tz).isValid
+    )
+  ),
+].sort((a, b) => (a < b ? -1 : 1));
 
 export const ERROR_NOT_FOUND = "Not found";
+
+function createRandomUser(location: string): User {
+  return {
+    firstName: faker.name.firstName(),
+    lastName: faker.name.lastName(),
+    birthdate: faker.date.birthdate(),
+    location,
+  };
+}
 
 export class InMemoryDB {
   private static instance: InMemoryDB;
   private user = {
-    map: {} as Record<number, User>,
+    map: Array.from({ length: 10000 }, (_, i) => i).reduce((obj, idx) => {
+      obj[idx] = createRandomUser(
+        luxonValidTimeZonesArr[
+          Math.floor(Math.random() * luxonValidTimeZonesArr.length)
+        ]
+      );
+      return obj;
+    }, {} as Record<string, User>),
     lastInsertedId: 1,
   };
 

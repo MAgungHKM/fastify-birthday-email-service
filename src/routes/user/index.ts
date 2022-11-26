@@ -1,5 +1,5 @@
 import { FastifyPluginAsync } from "fastify";
-import { User, UserNotFound } from "../../core/users";
+import { User, UserIDNotFound } from "../../core/users";
 import { dateAsYYYYMMDD } from "../../utils";
 import { UserDTO, UserIdDTO, userParamIdSchema, userJSONSchema } from "./dto";
 
@@ -18,18 +18,18 @@ const user: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     },
     async function (request, reply) {
       const { users, error } = fastify.userRepository.getAll();
-      if (error || !user) {
+      if (error || !users) {
         reply.code(500).send(error);
         return;
       }
 
       return {
         message: "Success",
-        data: users?.map<UserDTO>((item) => ({
+        data: users.map<UserDTO>((item) => ({
           id: item._id,
           first_name: item.firstName,
           last_name: item.lastName,
-          birthday: dateAsYYYYMMDD(item.birthday),
+          birthday: dateAsYYYYMMDD(item.birthdate),
           location: item.location,
         })),
       };
@@ -51,7 +51,7 @@ const user: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
       const data = request.params as UserIdDTO;
       const { user, error } = fastify.userRepository.getById(data.id);
       if (error || !user) {
-        const statusCode = error instanceof UserNotFound ? 404 : 500;
+        const statusCode = error instanceof UserIDNotFound ? 404 : 500;
 
         reply.code(statusCode).send(error);
         return;
@@ -61,7 +61,7 @@ const user: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         id: user._id,
         first_name: user.firstName,
         last_name: user.lastName,
-        birthday: dateAsYYYYMMDD(user.birthday),
+        birthday: dateAsYYYYMMDD(user.birthdate),
         location: user.location,
       };
 
@@ -88,7 +88,7 @@ const user: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
       const user: User = {
         firstName: data.first_name,
         lastName: data.last_name,
-        birthday: new Date(data.birthday),
+        birthdate: new Date(data.birthday),
         location: data.location,
       };
 
@@ -102,7 +102,7 @@ const user: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         id: user._id,
         first_name: user.firstName,
         last_name: user.lastName,
-        birthday: dateAsYYYYMMDD(user.birthday),
+        birthday: dateAsYYYYMMDD(user.birthdate),
         location: user.location,
       };
 
@@ -132,13 +132,13 @@ const user: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         _id: params.id,
         firstName: body.first_name,
         lastName: body.last_name,
-        birthday: new Date(body.birthday),
+        birthdate: new Date(body.birthday),
         location: body.location,
       };
 
       const { user: updatedUser, error } = fastify.userRepository.update(user);
       if (error || !updatedUser) {
-        const statusCode = error instanceof UserNotFound ? 404 : 500;
+        const statusCode = error instanceof UserIDNotFound ? 404 : 500;
 
         reply.code(statusCode).send(error);
         return;
@@ -148,7 +148,7 @@ const user: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         id: updatedUser._id,
         first_name: updatedUser.firstName,
         last_name: updatedUser.lastName,
-        birthday: dateAsYYYYMMDD(updatedUser.birthday),
+        birthday: dateAsYYYYMMDD(updatedUser.birthdate),
         location: updatedUser.location,
       };
 
@@ -174,7 +174,7 @@ const user: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
       const data = request.params as UserIdDTO;
       const { user, error } = fastify.userRepository.delete(data.id);
       if (error || !user) {
-        const statusCode = error instanceof UserNotFound ? 404 : 500;
+        const statusCode = error instanceof UserIDNotFound ? 404 : 500;
 
         reply.code(statusCode).send(error);
         return;
@@ -183,7 +183,7 @@ const user: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
       const responseData: UserDTO = {
         first_name: user.firstName,
         last_name: user.lastName,
-        birthday: dateAsYYYYMMDD(user.birthday),
+        birthday: dateAsYYYYMMDD(user.birthdate),
         location: user.location,
       };
 

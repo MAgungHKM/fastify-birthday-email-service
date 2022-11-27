@@ -2,7 +2,7 @@
 
 This project was bootstrapped with Fastify-CLI.
 
-# Birthday Email Service
+# What Is This
 
 This project was intended to be a simple implementation of Domain Driven Design according to my knowladge which I learned from [Dicky Arinal](https://github.com/arinal)——albeit an inconsiderable amount. As described in the first part of this `README`, this project is built with [Fastify](https://www.fastify.io/) framework with [node-tap](https://node-tap.org/) as its test framework. [Prisma](https://www.prisma.io/) is also used as its ORM. [PostgreSQL](https://www.postgresql.org/) is the preferred DB of choice, other than having in memory as well for testing purposes. [Swagger 2.0](https://github.com/fastify/fastify-swagger) is used to generate the API docs.
 

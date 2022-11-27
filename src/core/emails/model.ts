@@ -5,6 +5,7 @@ export class Email {
   to: string;
   title: string;
   message: string;
+  userId: number;
 
   constructor(user: User) {
     const fullName = `${user.firstName} ${user.lastName}`;
@@ -16,6 +17,7 @@ export class Email {
     this.to = `${cleanLowerCaseFullName}@mail.test`;
     this.title = `Happy birthday, ${user.firstName}!`;
     this.message = `Hey, ${fullName} it's your birthday!`;
+    this.userId = user._id as number;
   }
 }
 

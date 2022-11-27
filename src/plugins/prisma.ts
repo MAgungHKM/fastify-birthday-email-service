@@ -23,6 +23,8 @@ export default fp<PrismaPluginOptions>(
   { name: "prisma" }
 );
 
+export const autoload = false;
+
 // Use TypeScript module augmentation to declare the type of server.prisma to be PrismaClient
 declare module "fastify" {
   export interface FastifyInstance {

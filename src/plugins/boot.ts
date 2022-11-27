@@ -21,7 +21,7 @@ export default fp<BootstrapperPluginOptions>(
   },
   {
     name: "bootstrapper",
-    dependencies: ["zones", "prisma"],
+    dependencies: ["zones"],
   }
 );
 

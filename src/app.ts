@@ -5,6 +5,7 @@ import FastifySwagger from "@fastify/swagger";
 import FastifySwaggerUI from "@fastify/swagger-ui";
 import Bootstrapper from "./plugins/boot";
 import Emailer from "./plugins/emailer";
+import Prisma from "./plugins/prisma";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -61,6 +62,7 @@ const app: FastifyPluginAsync<AppOptions> = async (
     options: opts,
   });
 
+  await fastify.register(Prisma);
   await fastify.register(Bootstrapper);
   await fastify.register(Emailer);
 };

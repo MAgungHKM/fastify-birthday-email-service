@@ -11,17 +11,20 @@ import {
   IUserRepository,
   User,
   UserNotFound,
+  UserService,
 } from "../../../../src/core/users";
 import { InMemoryUserRepository } from "../../../../src/infra/inmemory";
 import { InMemoryDB } from "../../../../src/infra/inmemory/db";
 import { dateAsYYYYMMDD } from "../../../../src/utils";
 
+const now = new Date();
+
 const mockedGetAllTimeZonesByHour = (
   _hour: HourNumbers,
   _date: DateTime | undefined
 ) => ({
-  "Asia/Japan": dateAsYYYYMMDD(new Date()),
-  "Australia/Melbourne": dateAsYYYYMMDD(new Date()),
+  "Asia/Japan": dateAsYYYYMMDD(now),
+  "Australia/Melbourne": dateAsYYYYMMDD(now),
 });
 
 class MockedApiService1 {
@@ -94,11 +97,14 @@ test("check emailQueueService", async (t) => {
   const userRepository = new InMemoryUserRepository(
     mockedGetAllTimeZonesByHour
   );
-  const emailQueueService = new EmailQueueService(userRepository);
-
-  const now = new Date();
+  const userService = new UserService(
+    userRepository,
+    mockedGetAllTimeZonesByHour
+  );
+  const emailQueueService = new EmailQueueService(userRepository, userService);
 
   const user1: User = {
+    _id: 1,
     firstName: "John",
     lastName: "Doe",
     birthdate: now,
@@ -106,6 +112,7 @@ test("check emailQueueService", async (t) => {
   };
 
   const user2: User = {
+    _id: 2,
     firstName: "Jeanne",
     lastName: "Doe",
     birthdate: now,
@@ -113,6 +120,7 @@ test("check emailQueueService", async (t) => {
   };
 
   const user3: User = {
+    _id: 3,
     firstName: "Johnny",
     lastName: "Doe",
     birthdate: now,
@@ -149,16 +157,19 @@ test("check emailQueueService", async (t) => {
       }
 
       const userRepository = new MockedInMemoryUserRepository();
-      const emailQueueService = new EmailQueueService(userRepository);
+      const emailQueueService = new EmailQueueService(
+        userRepository,
+        userService
+      );
       const error = await emailQueueService.populateOnGoingQueue(emailQueue);
       t.same(error, new UserNotFound());
       t.equal(emailQueue.onGoing.length, 0);
     }
   );
 
-  userRepository.create(user1);
-  userRepository.create(user2);
-  userRepository.create(user3);
+  await userRepository.create(user1);
+  await userRepository.create(user2);
+  await userRepository.create(user3);
 
   t.test("if able to populate onGoingQueue as intended", async (t) => {
     t.equal(emailQueue.onGoing.length, 0);
@@ -229,7 +240,10 @@ test("check emailQueueService", async (t) => {
       }
     );
 
-    const emailQueueService1 = new MockedEmailQueueService1();
+    const emailQueueService1 = new MockedEmailQueueService1(
+      userRepository,
+      userService
+    );
     const error1 = await emailQueueService1.processOnGoingQueue(emailQueue);
     t.same(error1, { message: "Unknown error" });
 
@@ -242,9 +256,51 @@ test("check emailQueueService", async (t) => {
       }
     );
 
-    const emailQueueService2 = new MockedEmailQueueService2();
+    const emailQueueService2 = new MockedEmailQueueService2(
+      userRepository,
+      userService
+    );
     const error2 = await emailQueueService2.processOnGoingQueue(emailQueue);
     t.equal(error2, undefined);
+  });
+
+  t.test("if able to skip user when its changed or deleted", async (t) => {
+    InMemoryDB.getInstance().users().clearData();
+    const emailQueue = new EmailQueue();
+
+    await userRepository.create(user1);
+    await userRepository.create(user2);
+    await userRepository.create(user3);
+
+    const errorPopulate = await emailQueueService.populateOnGoingQueue(
+      emailQueue
+    );
+    t.equal(emailQueue.onGoing.length, 2);
+    t.equal(errorPopulate, undefined);
+    t.hasStrict(emailQueue.onGoing, [
+      {
+        email: email1,
+        retries: 0,
+      },
+      {
+        email: email2,
+        retries: 0,
+      },
+    ]);
+
+    await userRepository.update({
+      _id: 2,
+      firstName: "Jeanne",
+      lastName: "Doe",
+      birthdate: now,
+      location: "Europe/Amsterdam",
+    });
+
+    const errorProcess = await emailQueueService.processOnGoingQueue(
+      emailQueue
+    );
+    t.equal(errorProcess, undefined);
+    t.equal(emailQueue.onGoing.length, 0);
   });
 
   t.teardown(async () => {

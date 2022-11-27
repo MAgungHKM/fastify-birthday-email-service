@@ -7,6 +7,7 @@ import Bootstrapper from "./plugins/boot";
 import Emailer from "./plugins/emailer";
 
 import * as dotenv from "dotenv";
+import { InMemoryDB } from "../src/infra/inmemory/db";
 dotenv.config();
 
 export type AppOptions = {
@@ -61,6 +62,8 @@ const app: FastifyPluginAsync<AppOptions> = async (
     dir: join(__dirname, "..", "src", "routes"),
     options: opts,
   });
+
+  InMemoryDB.getInstance().users().clearData();
 
   await fastify.register(Bootstrapper);
   await fastify.register(Emailer);

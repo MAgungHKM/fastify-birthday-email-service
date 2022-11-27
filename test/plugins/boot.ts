@@ -1,6 +1,6 @@
 import fp from "fastify-plugin";
 import { EmailQueueService } from "../../src/core/emails/queues";
-import { IUserRepository } from "../../src/core/users";
+import { IUserRepository, UserService } from "../../src/core/users";
 import { InMemoryUserRepository } from "../../src/infra/inmemory";
 
 export interface BootstrapperPluginOptions {
@@ -14,10 +14,18 @@ export default fp<BootstrapperPluginOptions>(
     const userRepository = new InMemoryUserRepository(
       fastify.getAllTimeZonesByHour
     );
+    const userService = new UserService(
+      userRepository,
+      fastify.getAllTimeZonesByHour
+    );
 
-    const emailQueueService = new EmailQueueService(userRepository);
+    const emailQueueService = new EmailQueueService(
+      userRepository,
+      userService
+    );
 
     fastify.decorate("userRepository", userRepository);
+    fastify.decorate("userService", userService);
     fastify.decorate("emailQueueService", emailQueueService);
   },
   {
@@ -32,6 +40,7 @@ export const autoload = false;
 declare module "fastify" {
   export interface FastifyInstance {
     userRepository: IUserRepository;
+    userService: UserService;
     emailQueueService: EmailQueueService;
   }
 }

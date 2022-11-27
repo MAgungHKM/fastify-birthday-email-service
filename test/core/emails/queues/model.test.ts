@@ -11,6 +11,7 @@ test("check emailQueue model", async (t) => {
   const now = new Date();
 
   const user: User = {
+    _id: 1,
     firstName: "John",
     lastName: "Doe",
     birthdate: now,
@@ -24,6 +25,7 @@ test("check emailQueue model", async (t) => {
       to: email.to,
       message: email.message,
       title: email.title,
+      userId: 1,
     });
     t.equal(emailQueueItem.retries, 0);
   });

@@ -1,20 +1,12 @@
-import Fastify from "fastify";
-import fp from "fastify-plugin";
+import { build } from "../helper";
 import { test } from "tap";
-import MockedEmailer from "../plugins/emailer.mock";
 
 test("example is loaded", async (t) => {
-  const AppMock = t.mock("../../src/app", {
-    "../../src/plugins/emailer": MockedEmailer,
-  });
-  const mockedApp = Fastify();
-  mockedApp.register(fp(AppMock), {});
+  const app = await build(t);
 
-  const res = await mockedApp.inject({
+  const res = await app.inject({
     url: "/example",
   });
 
   t.equal(res.payload, "this is an example");
-
-  t.teardown(async () => await mockedApp.close());
 });

@@ -1,5 +1,6 @@
 import fp from "fastify-plugin";
 import { EmailQueue } from "../core/emails/queues";
+import type { Job as CronJob } from "fastify-cron";
 
 export interface SupportPluginOptions {
   // Specify Support plugin options here
@@ -65,15 +66,18 @@ export default fp<SupportPluginOptions>(
 
     const name = "emailer-job";
 
-    const job = fastify.cron.createJob({
+    fastify.cron.createJob({
       name,
       onTick,
       cronTime: "0 * * * *",
       startWhenReady: true,
+      runOnInit: true,
     });
 
     fastify.decorate("emailQueue", emailQueue);
-    fastify.decorate("stopEmailerJob", job.stop);
+    fastify.decorate("stopEmailerJob", () =>
+      (fastify.cron.getJobByName(name) as CronJob).stop()
+    );
   },
   {
     name: "emailer",

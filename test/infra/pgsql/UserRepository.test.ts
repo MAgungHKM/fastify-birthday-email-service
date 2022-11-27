@@ -48,7 +48,7 @@ class MockedPrismaClient {
     return Promise.resolve();
   };
   $queryRaw = async (
-    _query: TemplateStringsArray | Prisma.Sql,
+    query: TemplateStringsArray | Prisma.Sql,
     ...values: any[]
   ) => {
     const [hour] = values;

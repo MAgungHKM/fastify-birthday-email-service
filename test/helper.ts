@@ -5,7 +5,7 @@ import * as tap from 'tap';
 
 export type Test = typeof tap['Test']['prototype'];
 
-const AppPath = path.join(__dirname, '..', 'src', 'app.ts')
+const AppPath = path.join(__dirname, 'app.ts')
 
 // Fill in this config with all the configurations
 // needed for testing the application

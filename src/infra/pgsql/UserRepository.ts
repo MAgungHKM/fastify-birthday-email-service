@@ -52,8 +52,10 @@ export class PgSQLUserRepository implements IUserRepository {
   };
 
   getByLocalTime = async (hour: HourNumbers) => {
-    const userModels = (await this.db
-      .$queryRaw`SELECT * FROM users u WHERE EXTRACT(HOUR FROM NOW() AT TIME ZONE u.location) = ${hour}`) as UserModel[];
+    const userModels = (await this.db.$queryRaw`SELECT * FROM users u 
+      WHERE EXTRACT(HOUR FROM NOW() AT TIME ZONE u.location) = ${hour}
+      AND TO_CHAR(u.birthdate::TIMESTAMP, 'MM-DD') = TO_CHAR(NOW(), 'MM-DD')`) as UserModel[];
+
     const users = this.mapUserModelsToUsers(userModels);
     return { users };
   };

@@ -3,7 +3,6 @@ lockfileVersion: 5.4
 specifiers:
   '@faker-js/faker': ^7.6.0
   '@fastify/autoload': ^5.0.0
-  '@fastify/schedule': ^4.1.0
   '@fastify/sensible': ^5.0.0
   '@fastify/swagger': ^8.1.0
   '@fastify/swagger-ui': ^1.2.0
@@ -19,6 +18,7 @@ specifiers:
   dotenv: ^16.0.3
   fastify: ^4.0.0
   fastify-cli: ^5.6.0
+  fastify-cron: ^1.3.1
   fastify-plugin: ^4.0.0
   fastify-tsconfig: ^1.0.1
   fluent-json-schema: ^4.0.0
@@ -26,14 +26,12 @@ specifiers:
   prisma: ^4.6.1
   retry: ^0.13.1
   tap: ^16.1.0
-  toad-scheduler: ^2.0.0
   ts-node: ^10.4.0
   typescript: ^4.5.4
   tzdata: ^1.0.35
 
 dependencies:
   '@fastify/autoload': 5.5.0
-  '@fastify/schedule': 4.1.0_scg2zbxbpplxlc2vkheeenv5my
   '@fastify/sensible': 5.1.1
   '@fastify/swagger': 8.1.0
   '@fastify/swagger-ui': 1.2.0
@@ -43,11 +41,11 @@ dependencies:
   dotenv: 16.0.3
   fastify: 4.10.2
   fastify-cli: 5.6.0
+  fastify-cron: 1.3.1_fastify@4.10.2
   fastify-plugin: 4.3.0
   fluent-json-schema: 4.0.0
   luxon: 3.1.0
   retry: 0.13.1
-  toad-scheduler: 2.0.0
   tzdata: 1.0.35
 
 devDependencies:
@@ -319,17 +317,6 @@ packages:
       fast-json-stringify: 5.4.1
     dev: false
 
-  /@fastify/schedule/4.1.0_scg2zbxbpplxlc2vkheeenv5my:
-    resolution: {integrity: sha512-2t/oB5jCEVZLuSmyZ+awV9Q0VxyokePQTv1SD6cpShhWlViJVf/tlqDaijBCq34IxE3q7q4I1KHWqHUsaauIiw==}
-    peerDependencies:
-      fastify: ^4.0.0
-      toad-scheduler: ^2.0.0
-    dependencies:
-      fastify: 4.10.2
-      fastify-plugin: 4.3.0
-      toad-scheduler: 2.0.0
-    dev: false
-
   /@fastify/sensible/5.1.1:
     resolution: {integrity: sha512-zMn3MDb++nTdnQVHMtKPvEsx+gOf213HDYD8iWPnketvtUUcbuHTloYFleXZ0YWR9XCgJdN0RRE3smqzl4Q2gg==}
     dependencies:
@@ -479,13 +466,18 @@ packages:
     resolution: {integrity: sha512-yOlFc+7UtL/89t2ZhjPvvB/DeAr3r+Dq58IgzsFkOAvVC6NMJXmCGjbptdXdR9qsX7pKcTL+s87FtYREi2dEEQ==}
     dev: true
 
+  /@types/cron/2.0.0:
+    resolution: {integrity: sha512-xZM08fqvwIXgghtPVkSPKNgC+JoMQ2OHazEvyTKnNf7aWu1aB6/4lBbQFrb03Td2cUGG7ITzMv3mFYnMu6xRaQ==}
+    dependencies:
+      '@types/luxon': 3.1.0
+      '@types/node': 18.11.9
+    dev: false
+
   /@types/luxon/3.1.0:
     resolution: {integrity: sha512-gCd/HcCgjqSxfMrgtqxCgYk/22NBQfypwFUG7ZAyG/4pqs51WLTcUzVp1hqTbieDYeHS3WoVEh2Yv/2l+7B0Vg==}
-    dev: true
 
   /@types/node/18.11.9:
     resolution: {integrity: sha512-CRpX21/kGdzjOpFsZSkcrXMGIBWMGNIHXXBVFSH+ggkftxg+XYP20TESbh+zFvFj3EQOl5byk0HTRn1IL6hbqg==}
-    dev: true
 
   /@types/retry/0.12.2:
     resolution: {integrity: sha512-XISRgDJ2Tc5q4TRqvgJtzsRkFYNJzZrhTdtMoGVBttwzzQJkPnS3WWTFc7kuDRoPtPakl+T+OfdEUjYJj7Jbow==}
@@ -859,6 +851,12 @@ packages:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
     dev: true
 
+  /cron/2.1.0:
+    resolution: {integrity: sha512-Hq7u3P8y7UWYvsZbSKHHJDVG0VO9O7tp2qljxzTScelcTODBfCme8AIhnZsFwmQ9NchZ3hr2uNr+s3DSms7q6w==}
+    dependencies:
+      luxon: 1.28.0
+    dev: false
+
   /cross-spawn/7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
     engines: {node: '>= 8'}
@@ -1070,6 +1068,21 @@ packages:
       yargs-parser: 21.1.1
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /fastify-cron/1.3.1_fastify@4.10.2:
+    resolution: {integrity: sha512-BgOUeyu2HAJcNnL+8XnAcVLt1AMeN/SnCGTG4wDlHNFfUo/5RRnFYW8uRy3ZFpa0g43Q6ko5zdP+q1SWq8ui2Q==}
+    peerDependencies:
+      fastify: ^4.1.0
+    dependencies:
+      '@types/cron': 2.0.0
+      cron: 2.1.0
+      fastify: 4.10.2
+      fastify-plugin: 3.0.1
+    dev: false
+
+  /fastify-plugin/3.0.1:
+    resolution: {integrity: sha512-qKcDXmuZadJqdTm6vlCqioEbyewF60b/0LOFCcYN1B6BIZGlYJumWWOYs70SFYLDAH4YqdE1cxH/RKMG7rFxgA==}
     dev: false
 
   /fastify-plugin/4.3.0:
@@ -1575,6 +1588,10 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       yallist: 4.0.0
+    dev: false
+
+  /luxon/1.28.0:
+    resolution: {integrity: sha512-TfTiyvZhwBYM/7QdAVDh+7dBTBA29v4ik0Ce9zda3Mnf8on1S5KJI8P2jKFZ8+5C0jhmr0KwJEO/Wdpm0VeWJQ==}
     dev: false
 
   /luxon/3.1.0:
@@ -2362,10 +2379,6 @@ packages:
     engines: {node: '>=8.0'}
     dependencies:
       is-number: 7.0.0
-
-  /toad-scheduler/2.0.0:
-    resolution: {integrity: sha512-SmbXYpxTIdGC6ZcR4UC9+duXrky4ZDmu5QyA1f29HkjdPqeDluEsdEcchWsBf1zXYKl3cF2ABqIpbi3r0r2EKg==}
-    dev: false
 
   /toidentifier/1.0.1:
     resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}

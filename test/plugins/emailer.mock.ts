@@ -1,5 +1,4 @@
 import fp from "fastify-plugin";
-import { SimpleIntervalJob, AsyncTask } from "toad-scheduler";
 import { EmailQueue } from "../../src/core/emails/queues";
 
 export interface EmailerPluginOptions {
@@ -12,55 +11,73 @@ export default fp<EmailerPluginOptions>(
   async (fastify, opts) => {
     const emailQueue = new EmailQueue();
 
-    const task = new AsyncTask("emailing task", async () => {
-      console.log(
-        "====================================================================================="
-      );
-      console.log("Initiating scheduled emailer job");
-      console.log(
-        "====================================================================================="
-      );
+    const onTick = async () => {
+      try {
+        console.log(
+          "====================================================================================="
+        );
+        console.log("Initiating scheduled emailer job");
+        console.log(
+          `Queue status: ${emailQueue.onGoing.length} on going, ${emailQueue.failed.length} failed.`
+        );
+        console.log(
+          "====================================================================================="
+        );
 
-      console.log("Populating on going queue");
-      const errorPopulate =
-        await fastify.emailQueueService.populateOnGoingQueue(emailQueue);
+        console.log("Populating on going queue");
+        const errorPopulate =
+          await fastify.emailQueueService.populateOnGoingQueue(emailQueue);
 
-      if (errorPopulate) throw errorPopulate;
+        if (errorPopulate) throw errorPopulate;
 
-      console.log("Processing on going queue");
-      const errorProcess = await fastify.emailQueueService.processOnGoingQueue(
-        emailQueue
-      );
+        console.log(
+          `Queue status: ${emailQueue.onGoing.length} on going, ${emailQueue.failed.length} failed.`
+        );
 
-      if (errorProcess) throw errorProcess;
+        console.log("Processing on going queue");
+        const errorProcess =
+          await fastify.emailQueueService.processOnGoingQueue(emailQueue);
 
-      console.log(
-        "====================================================================================="
-      );
-      console.log("Emailer job successfully finished");
-      console.log(
-        "====================================================================================="
-      );
-      return Promise.resolve();
+        if (errorProcess) throw errorProcess;
+
+        console.log(
+          "====================================================================================="
+        );
+        console.log("Emailer job successfully finished");
+        console.log(
+          `Queue status: ${emailQueue.onGoing.length} on going, ${emailQueue.failed.length} failed.`
+        );
+        console.log(
+          "====================================================================================="
+        );
+      } catch (err) {
+        console.log(
+          "====================================================================================="
+        );
+        console.log("A problem occured while executing emailer task:", err);
+        console.log(
+          "====================================================================================="
+        );
+      }
+    };
+
+    const name = "emailer-job";
+
+    const job = fastify.cron.createJob({
+      name,
+      onTick,
+      cronTime: "0 * * * *",
+      startWhenReady: true,
     });
 
-    const job = new SimpleIntervalJob(
-      { seconds: 10, runImmediately: true },
-      task,
-      { id: "job-1" }
-    );
-
     fastify.ready().then(() => {
-      fastify.scheduler.addSimpleIntervalJob(job);
-
       setTimeout(() => {
         job.stop();
-        fastify.scheduler.removeById("job-1");
       }, 5000);
     });
   },
   {
     name: "emailer",
-    dependencies: ["scheduler"],
+    dependencies: ["cron"],
   }
 );

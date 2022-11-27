@@ -1,14 +1,14 @@
 import fp from "fastify-plugin";
-import { fastifySchedule } from "@fastify/schedule";
+import FastifyCron, { Config as FastifyCronOptions } from "fastify-cron";
 
 /**
  * This plugins adds some utilities to handle http errors
  *
  * @see https://github.com/fastify/fastify-sensible
  */
-export default fp<any>(
+export default fp<FastifyCronOptions>(
   async (fastify) => {
-    fastify.register(fastifySchedule);
+    fastify.register(FastifyCron);
   },
-  { name: "scheduler" }
+  { name: "cron" }
 );

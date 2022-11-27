@@ -1,5 +1,4 @@
 import fp from "fastify-plugin";
-import { SimpleIntervalJob, AsyncTask } from "toad-scheduler";
 import { EmailQueue } from "../../src/core/emails/queues";
 
 export interface SupportPluginOptions {
@@ -13,14 +12,9 @@ export const autoload = false;
 export default fp<SupportPluginOptions>(
   async (fastify, opts) => {
     const emailQueue = new EmailQueue();
-    fastify.decorate("emailQueue", emailQueue);
-    fastify.decorate("stopEmailerJob", () =>
-      fastify.scheduler.stopById("emailer-job")
-    );
 
-    const task = new AsyncTask(
-      "emailing task",
-      async () => {
+    const onTick = async () => {
+      try {
         console.log(
           "====================================================================================="
         );
@@ -58,9 +52,7 @@ export default fp<SupportPluginOptions>(
         console.log(
           "====================================================================================="
         );
-        return Promise.resolve();
-      },
-      (err) => {
+      } catch (err) {
         console.log(
           "====================================================================================="
         );
@@ -69,28 +61,23 @@ export default fp<SupportPluginOptions>(
           "====================================================================================="
         );
       }
-    );
+    };
 
-    const job = new SimpleIntervalJob(
-      { hours: 1, runImmediately: true },
-      task,
-      {
-        id: "emailer-job",
-      }
-    );
+    const name = "emailer-job";
 
-    fastify.ready().then(() => {
-      fastify.scheduler.addSimpleIntervalJob(job);
-
-      setTimeout(() => {
-        job.stop();
-        fastify.scheduler.removeById("emailer-job");
-      }, 30 * 1000);
+    const job = fastify.cron.createJob({
+      name,
+      onTick,
+      cronTime: "0 * * * *",
+      startWhenReady: true,
     });
+
+    fastify.decorate("emailQueue", emailQueue);
+    fastify.decorate("stopEmailerJob", job.stop);
   },
   {
     name: "emailer",
-    dependencies: ["scheduler"],
+    dependencies: ["cron"],
   }
 );
 

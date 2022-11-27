@@ -6,6 +6,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
     working_dir: /app
+    restart: unless-stopped
     ports:
       - '3000:${FASTIFY_PORT:-3000}'
     init: true
@@ -19,7 +20,7 @@ services:
     build:
       context: .
       dockerfile: ./db/Dockerfile
-    restart: always
+    restart: unless-stopped
     ports:
       - '5432:5432'
     volumes:

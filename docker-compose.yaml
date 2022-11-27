@@ -27,8 +27,8 @@ services:
       - postgres_data:/db/postgres
     environment:
       POSTGRES_USER: ${DB_USER:-admin}
-      POSTGRES_DATABASE: ${DB_NAME:-db_user}
-      POSTGRES_PASSWORD: ${DB_PASS:-S3cureP@ssw0rd}
+      POSTGRES_DATABASE: ${DB_NAME:-birthday}
+      POSTGRES_PASSWORD: ${DB_PASS:-V3ryS3cureP4ssw0rd}
     networks:
       - fastify-net
 

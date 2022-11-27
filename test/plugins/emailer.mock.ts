@@ -63,16 +63,17 @@ export default fp<EmailerPluginOptions>(
 
     const name = "emailer-job";
 
-    const job = fastify.cron.createJob({
+    fastify.cron.createJob({
       name,
       onTick,
       cronTime: "0 * * * *",
       startWhenReady: true,
+      runOnInit: true,
     });
 
     fastify.ready().then(() => {
       setTimeout(() => {
-        job.stop();
+        fastify.cron.stopAllJobs();
       }, 5000);
     });
   },

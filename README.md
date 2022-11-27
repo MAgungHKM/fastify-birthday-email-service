@@ -14,7 +14,7 @@ This project was intended to be a simple implementation of Domain Driven Design 
     ```
     pnpm install
     ```
-3. To run the app as is, you need to make sure your db is setup properly, and the [`db.sql`](./db/db.sql) file in [`db`](./db) directory is imported to your db. If you don't want to use the db you can replace the injected repository to use in memory at [`src/plugins/boot.ts`](./src/plugins/boot.ts#L15) file.
+3. To run the app as is, you need to make sure your db is set up properly, and the [`db.sql`](./db/db.sql) file in [`db`](./db) directory is imported to your db. If you don't want to use the db you can replace the injected repository to use in memory at [`src/plugins/boot.ts`](./src/plugins/boot.ts#L15) file.
 4. You can access the api at [http://localhost:11111](http://localhost:11111).
 
 ### Docker

@@ -30,6 +30,7 @@ coverage
 build/Release
 
 # Dependency directories
+.pnpm-store
 node_modules
 jspm_packages
 

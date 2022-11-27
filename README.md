@@ -10,7 +10,7 @@ This project was intended to be a simple implementation of Domain Driven Design 
 
 ### Local
 1. Copy or move the `.env.example` to `.env` and update the value as necessary
-2. Install the packages using your package installer of choice (I uses pnpm) by running the following code
+2. Install the packages using your package installer of choice (I uses pnpm, hence the project [`lock file`](./pnpm-lock.yaml)) by running the following code
     ```
     pnpm install
     ```

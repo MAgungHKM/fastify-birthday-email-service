@@ -22,7 +22,8 @@ COPY --chown=node:node . .
 RUN sed -i 's/localhost/postgres/g' .env
 
 # build app
-RUN pnpx prisma generate && pnpm build:ts
+RUN pnpx prisma generate
+RUN pnpm build:ts
 
 # Switch to 'node' user
 USER node

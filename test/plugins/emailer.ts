@@ -71,15 +71,21 @@ export default fp<SupportPluginOptions>(
       }
     );
 
-    const job = new SimpleIntervalJob({ hours: 1 }, task, {
-      id: "emailer-job",
-    });
+    const job = new SimpleIntervalJob(
+      { hours: 1, runImmediately: true },
+      task,
+      {
+        id: "emailer-job",
+      }
+    );
 
     fastify.ready().then(() => {
-      // initial execute
-      task.execute();
-
       fastify.scheduler.addSimpleIntervalJob(job);
+
+      setTimeout(() => {
+        job.stop();
+        fastify.scheduler.removeById("emailer-job");
+      }, 30 * 1000);
     });
   },
   {

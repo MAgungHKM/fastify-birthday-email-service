@@ -44,14 +44,19 @@ export default fp<EmailerPluginOptions>(
       return Promise.resolve();
     });
 
-    const job = new SimpleIntervalJob({ seconds: 10 }, task, { id: "job-1" });
+    const job = new SimpleIntervalJob(
+      { seconds: 10, runImmediately: true },
+      task,
+      { id: "job-1" }
+    );
 
     fastify.ready().then(() => {
       fastify.scheduler.addSimpleIntervalJob(job);
 
       setTimeout(() => {
+        job.stop();
         fastify.scheduler.removeById("job-1");
-      }, 2000);
+      }, 5000);
     });
   },
   {

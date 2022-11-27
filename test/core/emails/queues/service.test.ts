@@ -1,5 +1,6 @@
 import { DateTime, HourNumbers } from "luxon";
 import { test } from "tap";
+import { ApiService } from "../../../../src/api";
 import { Email } from "../../../../src/core/emails";
 import {
   EmailQueue,
@@ -16,6 +17,8 @@ import {
 import { InMemoryUserRepository } from "../../../../src/infra/inmemory";
 import { InMemoryDB } from "../../../../src/infra/inmemory/db";
 import { dateAsYYYYMMDD } from "../../../../src/utils";
+import dotenv from "dotenv";
+dotenv.config();
 
 const now = new Date();
 
@@ -27,17 +30,7 @@ const mockedGetAllTimeZonesByHour = (
   "Australia/Melbourne": dateAsYYYYMMDD(now),
 });
 
-class MockedApiService1 {
-  getToken = () => {
-    return Promise.reject({ message: "Unknown error" });
-  };
-}
-
-class MockedApiService2 {
-  getToken = () => {
-    return Promise.resolve({ data: { access_token: 12345 } });
-  };
-
+class MockedApiService {
   sendNotification = (_title: string, _message: string, _token: string) => {
     return Promise.reject({ message: "Unknown error" });
   };
@@ -101,7 +94,11 @@ test("check emailQueueService", async (t) => {
     userRepository,
     mockedGetAllTimeZonesByHour
   );
-  const emailQueueService = new EmailQueueService(userRepository, userService);
+  const emailQueueService = new EmailQueueService(
+    userRepository,
+    userService,
+    new ApiService(process.env.EMAIL_SERVICE_URL)
+  );
 
   const user1: User = {
     _id: 1,
@@ -159,7 +156,8 @@ test("check emailQueueService", async (t) => {
       const userRepository = new MockedInMemoryUserRepository();
       const emailQueueService = new EmailQueueService(
         userRepository,
-        userService
+        userService,
+        new ApiService(process.env.EMAIL_SERVICE_URL)
       );
       const error = await emailQueueService.populateOnGoingQueue(emailQueue);
       t.same(error, new UserNotFound());
@@ -231,37 +229,22 @@ test("check emailQueueService", async (t) => {
     emailQueue.pushOnGoing(new EmailQueueItem(email1));
     emailQueue.pushOnGoing(new EmailQueueItem(email2));
 
-    const { EmailQueueService: MockedEmailQueueService1 } = t.mock(
+    const { EmailQueueService: MockedEmailQueueService } = t.mock(
       "../../../../src/core/emails/queues/service",
       {
         "../../../../src/api": {
-          ApiService: MockedApiService1,
+          ApiService: MockedApiService,
         },
       }
     );
 
-    const emailQueueService1 = new MockedEmailQueueService1(
+    const emailQueueService = new MockedEmailQueueService(
       userRepository,
-      userService
+      userService,
+      new ApiService(process.env.EMAIL_SERVICE_URL)
     );
-    const error1 = await emailQueueService1.processOnGoingQueue(emailQueue);
-    t.same(error1, { message: "Unknown error" });
-
-    const { EmailQueueService: MockedEmailQueueService2 } = t.mock(
-      "../../../../src/core/emails/queues/service",
-      {
-        "../../../../src/api": {
-          ApiService: MockedApiService2,
-        },
-      }
-    );
-
-    const emailQueueService2 = new MockedEmailQueueService2(
-      userRepository,
-      userService
-    );
-    const error2 = await emailQueueService2.processOnGoingQueue(emailQueue);
-    t.equal(error2, undefined);
+    const error = await emailQueueService.processOnGoingQueue(emailQueue);
+    t.equal(error, undefined);
   });
 
   t.test("if able to skip user when its changed or deleted", async (t) => {

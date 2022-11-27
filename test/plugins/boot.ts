@@ -1,4 +1,5 @@
 import fp from "fastify-plugin";
+import { ApiService } from "../../src/api";
 import { EmailQueueService } from "../../src/core/emails/queues";
 import { IUserRepository, UserService } from "../../src/core/users";
 import { InMemoryUserRepository } from "../../src/infra/inmemory";
@@ -21,7 +22,8 @@ export default fp<BootstrapperPluginOptions>(
 
     const emailQueueService = new EmailQueueService(
       userRepository,
-      userService
+      userService,
+      new ApiService(process.env.EMAIL_SERVICE_URL)
     );
 
     fastify.decorate("userRepository", userRepository);

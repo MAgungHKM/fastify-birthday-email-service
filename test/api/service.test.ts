@@ -1,4 +1,7 @@
 import { test } from "tap";
+import { AxiosResponse, AxiosError } from "axios";
+import dotenv from "dotenv";
+dotenv.config();
 
 const mockedAxiosRetry = (_instance: any, _config: any) => {
   const { retryCondition, retryDelay, onRetry } = _config;
@@ -15,14 +18,15 @@ test("check apiSerivce", async (t) => {
     "axios-retry": mockedAxiosRetry,
   });
 
-  const api = new MockedApiService();
+  const api = new MockedApiService(process.env.EMAIL_SERVICE_URL);
 
   await api
-    .sendNotification("Test", "test", "Bearer testtt")
-    .then((res: any) => {
-      t.equal(res?.response?.status, 200);
+    .sendNotification("Test", "test", "test@mail.test")
+    .then((res: AxiosResponse) => {
+      t.equal(res.status, 200);
+      t.equal(res.data.status, "sent");
     })
-    .catch((err: any) => {
-      t.equal(err?.response?.status, 500);
+    .catch((err: AxiosError) => {
+      t.equal(err?.response?.status.toString()[0], "5");
     });
 });
